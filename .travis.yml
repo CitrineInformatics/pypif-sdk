@@ -1,0 +1,22 @@
+language: python
+sudo: false
+python:
+- '2.7'
+- '3.3'
+- '3.4'
+- '3.5'
+- '3.6'
+install:
+- pip install pytest
+- python setup.py install
+script:
+- py.test pypif --verbose
+deploy:
+  provider: pypi
+  user: CitrineInformatics
+  password:
+    secure: HT2v3pOTv+OCd4fFMjlkGrr0jXM7SdciXKE2ymmfWE6m+cUm8ur7w3uMIZN6FvY4hkqa+CXIjAbvbY4bl3OE16lKEIljXXcbrDFGP2hmJ++iM3SxcKcfBc5Tb2yimz6dlFZlTuAFkHJZJ73m1RkhcOwo7lMSx8LKSBh87htSoeU7VMSZ4ymW5NOgPnO+b7Ju/MthzS09a17VqogtKzyxt0TvddsTj4eGLk2UfXEp/vWL7PNjjLvZvIFZa7jxtfwQs5RO+kxmcR5KA+yBJV5m10hyG5Ho2uROl9uGZUVTED5+PwPkwjsIa888GOnirUSwokzooW5iLKE/d8mjgjJyDHhex6w3SuA9271kbNyz3ZrvdO0va9YVQzZevl3Oi5xDOyqowuRcCd3O1bbz855/cFYVyVssosfPRtFkFZWR3KjWllzZR2C7aJmYY8cawA5AWd/9I/3FnC3q7J7DsAq/9zCLEDAXR5+uj1ZpaM0M5z+VfpSNERUU4V9ICd6Qb3aOjQoA9lJSRsqoytINR5TZA2Kx203DSa/9AUhgsrLhIpzHkzrZ+JiPyfHgr2KINOpemth1mJVbbK3GBtyoT40rFgm6IHax/SQzk0T/0Udtorm2V0dWyXM8X8EdnB46lalhupgXeD0MP+j9CKuml9pynqPs2XPVWj3wqHWsQ8G9ASw=
+  on:
+    distributions: sdist bdist_wheel
+    repo: CitrineInformatics/pypif-sdk
+    branch: master
