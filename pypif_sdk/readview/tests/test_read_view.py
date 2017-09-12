@@ -1,5 +1,5 @@
 from pypif.obj import System, Property, Scalar, Value, Method, Software
-from pypif.util.read_view import ReadView
+from pypif_sdk.readview import ReadView
 
 
 def test_read_view():
