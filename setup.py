@@ -8,5 +8,5 @@ setup(name='pypif-sdk',
       author_email='maxhutch@citrine.io',
       packages=find_packages(),
       install_requires=[
-          'pypif'
+          'pypif>=1.0.0'
       ])
