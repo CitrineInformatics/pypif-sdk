@@ -129,22 +129,7 @@ def _to_user_defined(pif_obj):
 
     # Grab interesting values not in the ReadView
     pif = pif_obj.as_dictionary()
-    '''
-    if pif.get("chemicalFormula"):
-        symbol = ""
-        num = ""
-        # Formulae are alphabetic characters followed by zero or more 
-        for char in pif["chemicalFormula"]:
-            if char.isdigit():
-                num += char
-            elif char.isalpha():
-                if num:
-                    
-                symbol += char
-            elif char.isdigit():
-                num += char
-            elif
-    '''
+
     elements = {}
     if pif.get("composition"):
         for comp in pif["composition"]:
@@ -171,6 +156,8 @@ def _to_user_defined(pif_obj):
             elif char.islower():
                 symbol += char
             elif char.isdigit():
+                num += char
+            elif char == ".":
                 num += char
             # All other chars are not useful
         if elements:
