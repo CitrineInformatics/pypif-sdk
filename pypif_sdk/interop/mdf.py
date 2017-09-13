@@ -33,7 +33,7 @@ def pif_to_mdf_record(pif_obj, dataset_id):
     """Convert a PIF into partial MDF record"""
     res = {}
     res["mdf"] = _to_meta_data(pif_obj, dataset_id)
-    res["{source_name}"] = _to_user_defined(pif_obj)
+    res[res["mdf"]["source_name"]] = _to_user_defined(pif_obj)
     return dumps(res)
 
 
@@ -42,23 +42,29 @@ def _to_meta_data(pif_obj, dataset_id):
     pif = pif_obj.as_dictionary()
     mdf = {}
     try:
-        mdf["title"] = pif["names"][0]  #REQ
+        if pif.get("names"):
+            mdf["title"] = pif["names"][0]
+        else:
+            mdf["title"] = "Citrine PIF " + str(pif["uid"])
         if pif.get("chemicalFormula"):
             mdf["composition"] = pif["chemicalFormula"]
         mdf["acl"] = ["public"] #TODO: Real ACLs
         mdf["source_name"] = _construct_new_key("citrine_" + str(dataset_id))
 
-        mdf["data_contact"] = []  #REQ
-        for contact in pif["contacts"]:
-            data_c = {
-                "given_name": contact["name"]["given"],  #REQ
-                "family_name": contact["name"]["family"]  #REQ
-                }
-            if contact.get("email"):
-                data_c["email"] = contact.get("email", "")
-            if contact.get("orcid"):
-                data_c["orcid"] = contact.get("orcid", "")
-            mdf["data_contact"].append(data_c)
+        if pif.get("contacts"):
+            mdf["data_contact"] = []  #TODO: REQ
+            for contact in pif["contacts"]:
+                data_c = {
+                    "given_name": contact["name"]["given"],  #REQ
+                    "family_name": contact["name"]["family"]  #REQ
+                    }
+                if contact.get("email"):
+                    data_c["email"] = contact.get("email", "")
+                if contact.get("orcid"):
+                    data_c["orcid"] = contact.get("orcid", "")
+                mdf["data_contact"].append(data_c)
+            if not mdf["data_contact"]:
+                mdf.pop("data_contact")
         
         mdf["data_contributor"] = [{}] #TODO: Real contrib
 
@@ -94,8 +100,8 @@ def _to_meta_data(pif_obj, dataset_id):
             mdf["tags"] = pif["tags"]
 
     # If required MDF metadata is missing from PIF, abort
-    except KeyError:
-        print("Error: Required MDF metadata not found in PIF", pif["uid"])
+    except KeyError as e:
+        print("Error: Required MDF metadata", str(e), "not found in PIF", pif["uid"])
         return None
 
     return mdf
