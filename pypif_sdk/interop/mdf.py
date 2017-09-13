@@ -42,60 +42,60 @@ def _to_meta_data(pif_obj, dataset_id):
     pif = pif_obj.as_dictionary()
     mdf = {}
     try:
-        if pif.get("category") == "system.chemical":
-            mdf["title"] = pif["names"][0]  #REQ
-            if pif.get("chemicalFormula"):
-                mdf["composition"] = pif["chemicalFormula"]
-            mdf["acl"] = ["public"] #TODO: Real ACLs
-#            mdf["source_name"] = _construct_new_key(mdf["title"])
+        mdf["title"] = pif["names"][0]  #REQ
+        if pif.get("chemicalFormula"):
+            mdf["composition"] = pif["chemicalFormula"]
+        mdf["acl"] = ["public"] #TODO: Real ACLs
+        mdf["source_name"] = _construct_new_key("citrine_" + str(dataset_id))
 
-            mdf["data_contact"] = []  #REQ
-            for contact in pif["contacts"]:
-                data_c = {
-                    "given_name": contact["name"]["given"],  #REQ
-                    "family_name": contact["name"]["family"]  #REQ
-                    }
-                if contact.get("email"):
-                    data_c["email"] = contact.get("email", "")
-                if contact.get("orcid"):
-                    data_c["orcid"] = contact.get("orcid", "")
-                mdf["data_contact"].append(data_c)
-            
-            mdf["data_contributor"] = [{}] #TODO: Real contrib
-
-            mdf["links"] = {
-                "landing_page": "https://citrination.com/datasets/{}".format(dataset_id),
-                "publication": []
+        mdf["data_contact"] = []  #REQ
+        for contact in pif["contacts"]:
+            data_c = {
+                "given_name": contact["name"]["given"],  #REQ
+                "family_name": contact["name"]["family"]  #REQ
                 }
-            if pif.get("references"):
-                mdf["author"] = []
-                mdf["citation"] = []
-                for ref in pif["references"]:
-                    if ref.get("doi"):
-                        mdf["citation"].append(ref["doi"]) #TODO: Make actual citation
-                        mdf["links"]["publication"].append(ref["doi"])
-                    if ref.get("authors"):
-                        for author in ref["authors"]:
-                            if author.get("given") and author.get("family"):
-                                mdf["author"].append({
-                                    "given_name": author["given"],
-                                    "family_name": author["family"]
-                                    })
-                # Remove fields if blank
-                if not mdf["author"]:
-                    mdf.pop("author")
-                if not mdf["citation"]:
-                    mdf.pop("citation")
-                if not mdf["links"]["publication"]:
-                    mdf["links"].pop("publication")
+            if contact.get("email"):
+                data_c["email"] = contact.get("email", "")
+            if contact.get("orcid"):
+                data_c["orcid"] = contact.get("orcid", "")
+            mdf["data_contact"].append(data_c)
+        
+        mdf["data_contributor"] = [{}] #TODO: Real contrib
 
-            if pif.get("licenses", [{}])[0].get("url"):
-                mdf["license"] = pif["licenses"][0]["url"]
-            if pif.get("tags"):
-                mdf["tags"] = pif["tags"]
+        mdf["links"] = {
+            "landing_page": "https://citrination.com/datasets/{}".format(dataset_id),
+            "publication": []
+            }
+        if pif.get("references"):
+            mdf["author"] = []
+            mdf["citation"] = []
+            for ref in pif["references"]:
+                if ref.get("doi"):
+                    mdf["citation"].append(ref["doi"]) #TODO: Make actual citation
+                    mdf["links"]["publication"].append(ref["doi"])
+                if ref.get("authors"):
+                    for author in ref["authors"]:
+                        if author.get("given") and author.get("family"):
+                            mdf["author"].append({
+                                "given_name": author["given"],
+                                "family_name": author["family"]
+                                })
+            # Remove fields if blank
+            if not mdf["author"]:
+                mdf.pop("author")
+            if not mdf["citation"]:
+                mdf.pop("citation")
+            if not mdf["links"]["publication"]:
+                mdf["links"].pop("publication")
+
+        if pif.get("licenses", [{}])[0].get("url"):
+            mdf["license"] = pif["licenses"][0]["url"]
+        if pif.get("tags"):
+            mdf["tags"] = pif["tags"]
 
     # If required MDF metadata is missing from PIF, abort
     except KeyError:
+        print("Error: Required MDF metadata not found in PIF", pif["uid"])
         return None
 
     return mdf

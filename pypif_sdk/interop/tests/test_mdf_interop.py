@@ -82,6 +82,7 @@ def test_to_meta_data():
         "title": "methane",
         "composition": "CH4",
         "acl": ["public"],
+        "source_name": "citrine_0",
         "data_contact": [{
             "given_name": "Albert",
             "family_name": "Einstein"
