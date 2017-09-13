@@ -3,6 +3,8 @@ from pypif.obj.system import System, ChemicalSystem
 from pypif_sdk.interop.mdf import _to_user_defined, _construct_new_key, _to_meta_data
 from pypif_sdk.interop.mdf import query_to_mdf_records
 
+import pytest
+from os import environ
 import json
 
 
@@ -19,9 +21,11 @@ test_pif = ChemicalSystem(
     ]
 )
 
+
+@pytest.mark.skipif("CITRINATION_API_KEY" not in environ, reason="No API key available")
 def test_query_to_mdf_records():
     records = query_to_mdf_records(dataset_id=153258)
-    print(json.dumps(records[0], indent=2))
+    assert all("mdf" in r for r in records)
 
 
 def test_property_value():
