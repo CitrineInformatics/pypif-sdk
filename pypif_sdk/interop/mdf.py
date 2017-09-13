@@ -1,27 +1,41 @@
 from pypif_sdk.readview import ReadView
 from pypif.obj.common import Value
-from json import dumps
+from citrination_client import PifQuery
+from ..util.citrination import get_client
+from pypif.pif import dumps
 
 
-def query_to_mdf_records(query=None, datasetID=None):
+def query_to_mdf_records(query=None, dataset_id=None):
     """Evaluate a query and return a list of MDF records
 
     If a datasetID is specified by there is no query, a simple
     whole dataset query is formed for the user
     """
+    if not query and not dataset_id:
+        raise ValueError("Either query or datasetID must be specified")
+    if not query:
+        query = PifQuery(include_datasets=[dataset_id])
+    client = get_client()
+    if not client:
+        raise ValueError("Unable to create a citrination client; is 'CITRINATION_API_KEY' in the env?")
 
-    return []
+    result = client.search(query)
+    records = []
+    for hit in result.hits:
+        records.append(pif_to_mdf_record(hit.system, hit.dataset))
+
+    return records
 
 
-def pif_to_mdf_record(pif_obj, datasetID):
+def pif_to_mdf_record(pif_obj, dataset_id):
     """Convert a PIF into partial MDF record"""
     res = {}
-    res["mdf"] = _to_meta_data(pif, datasetID)
-    res["{source_name}"] = _to_user_defined(pif)
+    res["mdf"] = _to_meta_data(pif_obj, dataset_id)
+    res["{source_name}"] = _to_user_defined(pif_obj)
     return dumps(res)
 
 
-def _to_meta_data(pif_obj, datasetID):
+def _to_meta_data(pif_obj, dataset_id):
     """Convert the meta-data from the PIF into MDF"""
     pif = pif_obj.as_dictionary()
     mdf = {}
@@ -48,7 +62,7 @@ def _to_meta_data(pif_obj, datasetID):
             mdf["data_contributor"] = [{}] #TODO: Real contrib
 
             mdf["links"] = {
-                "landing_page": "https://citrination.com/datasets/{}".format(datasetID),
+                "landing_page": "https://citrination.com/datasets/{}".format(dataset_id),
                 "publication": []
                 }
             if pif.get("references"):
@@ -114,6 +128,7 @@ def _construct_new_key(name, units=None):
 
 def _extract_key_value(obj):
     """Extract the value from the object and make a descriptive key"""
+    key = None; value = None
 
     # Parse a Value object, which includes Properties
     if isinstance(obj, Value):

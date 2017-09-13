@@ -101,6 +101,8 @@ class ReadView():
                         for x in getattr(system, k):
                             # define a key
                             new_key = getattr(x, name)
+                            if not new_key:
+                                continue
                             new_val = ReadView(x)
                             parsed[new_key] = new_val
                             new_keypair(new_key, new_val, self.ambig, self.unambig)
@@ -117,6 +119,8 @@ class ReadView():
                 for t, name in self.inlines:
                     if isinstance(getattr(system, k), t):
                         new_key = getattr(getattr(system, k), name)
+                        if not new_key:
+                            continue
                         new_val = ReadView(getattr(system, k))
                         new_keypair(new_key, new_val, self.ambig, self.unambig)
                         add_child_ambig(new_val.ambig, new_val.unambig, self.ambig, self.unambig)

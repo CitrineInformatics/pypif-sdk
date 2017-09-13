@@ -1,6 +1,9 @@
 from pypif.obj.common import Property, Scalar, Person, Name, License, Reference, Value
 from pypif.obj.system import System, ChemicalSystem
 from pypif_sdk.interop.mdf import _to_user_defined, _construct_new_key, _to_meta_data
+from pypif_sdk.interop.mdf import query_to_mdf_records
+
+import json
 
 
 test_pif = ChemicalSystem(
@@ -15,6 +18,10 @@ test_pif = ChemicalSystem(
         Property(name="spam", scalrs=[Scalar(value="eggs")])
     ]
 )
+
+def test_query_to_mdf_records():
+    records = query_to_mdf_records(dataset_id=153258)
+    print(json.dumps(records[0], indent=2))
 
 
 def test_property_value():
@@ -57,7 +64,7 @@ def test_construct_new_key():
 
 
 def test_to_meta_data():
-    meta_data = _to_meta_data(test_pif)
+    meta_data = _to_meta_data(test_pif, 0)
     assert meta_data == {
         "title": "methane",
         "composition": "CH4",
@@ -79,7 +86,7 @@ def test_to_meta_data():
         "license": "url",
         "tags": ["too long", "didn't read"],
         "links": {
-            #landing_page
+            "landing_page" : "https://citrination.com/datasets/0",
             "publication": ["doi"]
             }
         }
