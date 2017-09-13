@@ -3,15 +3,25 @@ from pypif.obj.common import Value
 from json import dumps
 
 
-def pif_to_mdf_record(pif):
-   """Convert a PIF into partial MDF record"""
-   res = {}
-   res["mdf"] = _to_meta_data(pif)
-   res["{source_name}"] = _to_user_defined(pif)
-   return dumps(res)
+def query_to_mdf_records(query=None, datasetID=None):
+    """Evaluate a query and return a list of MDF records
+
+    If a datasetID is specified by there is no query, a simple
+    whole dataset query is formed for the user
+    """
+
+    return []
 
 
-def _to_meta_data(pif_obj):
+def pif_to_mdf_record(pif_obj, datasetID):
+    """Convert a PIF into partial MDF record"""
+    res = {}
+    res["mdf"] = _to_meta_data(pif, datasetID)
+    res["{source_name}"] = _to_user_defined(pif)
+    return dumps(res)
+
+
+def _to_meta_data(pif_obj, datasetID):
     """Convert the meta-data from the PIF into MDF"""
     pif = pif_obj.as_dictionary()
     mdf = {}
@@ -38,7 +48,7 @@ def _to_meta_data(pif_obj):
             mdf["data_contributor"] = [{}] #TODO: Real contrib
 
             mdf["links"] = {
-#TODO                "landing_page": pif["references"] => tags = landing_page["url"],
+                "landing_page": "https://citrination.com/datasets/{}".format(datasetID),
                 "publication": []
                 }
             if pif.get("references"):
