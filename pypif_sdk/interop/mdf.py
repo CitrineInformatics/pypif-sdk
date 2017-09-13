@@ -113,12 +113,12 @@ def _to_meta_data(pif_obj, dataset_id):
     return mdf
 
 
-def _to_user_defined(pif):
+def _to_user_defined(pif_obj):
     """Read the systems in the PIF to populate the user-defined portion"""
     res = {}
 
-    # make a read view to flatten the heirarchy
-    rv = ReadView(pif)
+    # make a read view to flatten the hierarchy
+    rv = ReadView(pif_obj)
 
     # Iterate over the keys in the read view
     for k in rv.keys():
@@ -126,6 +126,55 @@ def _to_user_defined(pif):
         # add any objects that can be extracted
         if name and value is not None:
             res[name] = value
+
+    # Grab interesting values not in the ReadView
+    pif = pif_obj.as_dictionary()
+    '''
+    if pif.get("chemicalFormula"):
+        symbol = ""
+        num = ""
+        # Formulae are alphabetic characters followed by zero or more 
+        for char in pif["chemicalFormula"]:
+            if char.isdigit():
+                num += char
+            elif char.isalpha():
+                if num:
+                    
+                symbol += char
+            elif char.isdigit():
+                num += char
+            elif
+    '''
+    elements = {}
+    if pif.get("composition"):
+        for comp in pif["composition"]:
+            if comp.get("actualAtomicPercent"):
+                elements[comp["element"]] = float(comp["actualAtomicPercent"]["value"])
+            elif comp.get("actualWeightPercent"):
+                elements[comp["element"]] = float(comp["actualWeightPercent"]["value"])
+        if elements:
+            res["elemental_percent"] = elements
+    elif pif.get("chemicalFormula"):
+        symbol = ""
+        num = ""
+        # Chemical formulae are comprised of letters, numbers, and potentially characters we don't care about
+        for char in pif["chemicalFormula"]:
+            # Uppercase char indicates beginning of new symbol
+            if char.isupper():
+                # If there is already a symbol in holding, process it
+                if symbol:
+                    elements[symbol] = int(num) if num else 1
+                    symbol = ""
+                    num = ""
+                symbol += char
+            # Lowercase chars or digits are continuations of a symbol
+            elif char.islower():
+                symbol += char
+            elif char.isdigit():
+                num += char
+            # All other chars are not useful
+        if elements:
+            res["elemental_proportion"] = elements
     return res
 
 
