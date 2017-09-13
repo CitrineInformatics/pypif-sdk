@@ -1,8 +1,10 @@
 from pypif_sdk.readview import ReadView
-from pypif.obj.common import Value
+from pypif.obj.common import Value, ProcessStep
 from citrination_client import PifQuery
 from ..util.citrination import get_client
 from pypif.pif import dumps
+
+import re
 
 
 def query_to_mdf_records(query=None, dataset_id=None):
@@ -117,12 +119,19 @@ def _to_user_defined(pif):
 
 def _construct_new_key(name, units=None):
     """Construct an MDF safe key from the name and units"""
+    to_replace = ["/", "\\", "*", "^", "#", " ", "\n", "\t", ",", ".", ")", "(", "'", "`", "-"]
+    to_remove = ["$", "{", "}"]
+
     cat = name
     if units:
         cat = "_".join([name, units])
-    to_remove = ["/", "\\", "*", "^", "#", " ", "\n", "\t"]
-    for c in to_remove:
+    for c in to_replace:
        cat = cat.replace(c, "_")
+    for c in to_remove:
+       cat = cat.replace(c, "")
+
+    cat = re.sub('_+','_', cat)
+
     return cat
 
 
@@ -140,6 +149,11 @@ def _extract_key_value(obj):
             value =  [x.value for x in obj.scalars]
         elif obj.vectors and len(obj.vectors) == 1:
             value = [x.value for x in obj.vectors[0]]
+
+    # If there is a process step, pul out its name as the value
+    # TODO: resolve duplicates
+    if isinstance(obj, ProcessStep):
+        key = "Processing"
+        value = obj.name
         
     return key, value
-

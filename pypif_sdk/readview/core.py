@@ -9,6 +9,7 @@ from pypif.obj.common.software import Software
 from pypif.obj.common.source import Source
 from pypif.obj.common.value import Value
 from pypif.obj.common.reference import Reference
+from pypif.obj.common import ProcessStep
 from pypif.obj import System as Subsystem
 from pypif.pif import dumps
 
@@ -79,6 +80,7 @@ class ReadView():
             (Software, "name"),
             (Source, "producer"),
             (DisplayItem, "title"),
+            (ProcessStep, "name"),
             (Reference, "doi"),
         ]
 

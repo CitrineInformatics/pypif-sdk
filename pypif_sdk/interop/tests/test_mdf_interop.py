@@ -24,8 +24,17 @@ test_pif = ChemicalSystem(
 
 @pytest.mark.skipif("CITRINATION_API_KEY" not in environ, reason="No API key available")
 def test_query_to_mdf_records():
+    """Big integration test to make sure everything is working"""
     records = query_to_mdf_records(dataset_id=153258)
-    assert all("mdf" in r for r in records)
+
+    assert len(records) == 9, "Some records were not converted"
+
+    assert all("mdf" in r for r in records), "Records are majorly malformed"
+    for r in records:
+        rd = json.loads(r)
+        user_block = rd["{source_name}"]
+        assert "Density_kg_m_3" in user_block, "Failed to convert property"
+        assert "Heat_treatment" in user_block, "Failed to convert process step detail"
 
 
 def test_property_value():
