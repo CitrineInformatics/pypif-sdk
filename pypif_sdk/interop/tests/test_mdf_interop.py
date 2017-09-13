@@ -1,5 +1,6 @@
 from pypif.obj.common import Property, Scalar, Person, Name, License, Reference, Value
 from pypif.obj.system import System, ChemicalSystem
+from pypif.obj.system.chemical.common import Composition
 from pypif_sdk.interop.mdf import _to_user_defined, _construct_new_key, _to_meta_data
 from pypif_sdk.interop.mdf import query_to_mdf_records
 
@@ -8,10 +9,11 @@ from os import environ
 import json
 
 
-test_pif = ChemicalSystem(
+test_pif1 = ChemicalSystem(
+    uid="0",
     chemical_formula="CH4",
     names = ["methane", "natural gas"],
-    contacts = [Person(name=Name(given="Albert", family="Einstein")), Person(name=Name(given="Adam", family="Min"), email="admin@citrine.io")],
+    contacts = [Person(name=Name(given="Albert", family="Einstein"), orcid="123456"), Person(name=Name(given="Adam", family="Min"), email="admin@citrine.io")],
     references = [Reference(doi="doi", authors=[Name(given="Captain", family="Marvel")])],
     licenses = [License(url="url")],
     tags = ["too long", "didn't read"],
@@ -20,6 +22,11 @@ test_pif = ChemicalSystem(
         Property(name="spam", scalrs=[Scalar(value="eggs")])
     ]
 )
+test_pif2 = ChemicalSystem(
+    uid="0",
+    composition=[Composition(element="H"), Composition(element="S"), Composition(element="O")],
+    references=[]
+    )
 
 
 @pytest.mark.skipif("CITRINATION_API_KEY" not in environ, reason="No API key available")
@@ -77,15 +84,16 @@ def test_construct_new_key():
 
 
 def test_to_meta_data():
-    meta_data = _to_meta_data(test_pif, 0)
-    assert meta_data == {
+    meta_data1 = _to_meta_data(test_pif1, 0)
+    assert meta_data1 == {
         "title": "methane",
         "composition": "CH4",
         "acl": ["public"],
         "source_name": "citrine_0",
         "data_contact": [{
             "given_name": "Albert",
-            "family_name": "Einstein"
+            "family_name": "Einstein",
+            "orcid": "123456"
             },{
             "given_name": "Adam",
             "family_name": "Min",
@@ -102,6 +110,17 @@ def test_to_meta_data():
         "links": {
             "landing_page" : "https://citrination.com/datasets/0",
             "publication": ["doi"]
+            }
+        }
+    meta_data2 = _to_meta_data(test_pif2, 0)
+    assert meta_data2 == {
+        "title": "Citrine PIF 0",
+        "composition": "HSO",
+        "acl": ["public"],
+        "source_name": "citrine_0",
+        "data_contributor": [{}],
+        "links": {
+            "landing_page": "https://citrination.com/datasets/0"
             }
         }
 

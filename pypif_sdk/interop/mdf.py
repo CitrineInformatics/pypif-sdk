@@ -46,8 +46,14 @@ def _to_meta_data(pif_obj, dataset_id):
             mdf["title"] = pif["names"][0]
         else:
             mdf["title"] = "Citrine PIF " + str(pif["uid"])
+
         if pif.get("chemicalFormula"):
             mdf["composition"] = pif["chemicalFormula"]
+        elif pif.get("composition"):
+            mdf["composition"] = ''.join([comp["element"] for comp in pif["composition"] if comp["element"]])
+        if not mdf["composition"]:
+            mdf.pop("composition")
+
         mdf["acl"] = ["public"] #TODO: Real ACLs
         mdf["source_name"] = _construct_new_key("citrine_" + str(dataset_id))
 
@@ -91,8 +97,8 @@ def _to_meta_data(pif_obj, dataset_id):
                 mdf.pop("author")
             if not mdf["citation"]:
                 mdf.pop("citation")
-            if not mdf["links"]["publication"]:
-                mdf["links"].pop("publication")
+        if not mdf["links"]["publication"]:
+            mdf["links"].pop("publication")
 
         if pif.get("licenses", [{}])[0].get("url"):
             mdf["license"] = pif["licenses"][0]["url"]
