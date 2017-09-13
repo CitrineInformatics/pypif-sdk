@@ -5,7 +5,7 @@ from pypif_sdk.interop.mdf import _to_user_defined, _construct_new_key
 
 test_pif = ChemicalSystem(
     chemical_formula="CH4",
-    names = ["methane", "fart"],
+    names = ["methane", "natural gas"],
     contacts = [Person(name=Name(given="Albert", family="Einstein")), Person(email="admin@citrine.io")],
     references = [Reference(doi="doi", authors=[Name(given="Captain", family="Marvel")])],
     licenses = [License(url="url")],
