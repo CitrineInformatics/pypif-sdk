@@ -58,7 +58,7 @@ def _to_meta_data(pif_obj, dataset_id):
         mdf["source_name"] = _construct_new_key("citrine_" + str(dataset_id))
 
         if pif.get("contacts"):
-            mdf["data_contact"] = []  #TODO: REQ
+            mdf["data_contact"] = []
             for contact in pif["contacts"]:
                 data_c = {
                     "given_name": contact["name"]["given"],  #REQ
@@ -148,7 +148,11 @@ def _to_user_defined(pif_obj):
             if char.isupper():
                 # If there is already a symbol in holding, process it
                 if symbol:
-                    elements[symbol] = int(num) if num else 1
+                    try:
+                        elements[symbol] = int(num)
+                    # If num is a float, raises ValueError
+                    except ValueError:
+                        elements[symbol] = float(num) if num else 1
                     symbol = ""
                     num = ""
                 symbol += char
