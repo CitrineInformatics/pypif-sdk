@@ -7,24 +7,28 @@ from pypif.pif import dumps
 import re
 
 
-def query_to_mdf_records(query=None, dataset_id=None, acl=None):
+def query_to_mdf_records(query=None, dataset_id=None, mdf_acl=None):
     """Evaluate a query and return a list of MDF records
 
     If a datasetID is specified by there is no query, a simple
     whole dataset query is formed for the user
     """
     if not query and not dataset_id:
-        raise ValueError("Either query or datasetID must be specified")
+        raise ValueError("Either query or dataset_id must be specified")
+    if query and dataset_id:
+        raise ValueError("Both query and dataset_id were specified; pick one or the other.")
     if not query:
         query = PifQuery(include_datasets=[dataset_id])
+
     client = get_client()
-    if not client:
-        raise ValueError("Unable to create a citrination client; is 'CITRINATION_API_KEY' in the env?")
-    if not acl:
-        raise ValueError('Access controls (acl) must be specified.  Use ["public"] for public access')
+
+    if not mdf_acl:
+        raise ValueError('Access controls (mdf_acl) must be specified.  Use ["public"] for public access')
 
 
     pif_result = client.pif_search(query)
+    if len(pif_result.hits) == 0:
+        return []
 
     example_uid = pif_result.hits[0].system.uid
     dataset_query = DatasetQuery(system=SystemQuery(uid=Filter(equal=example_uid)), size=1)
@@ -33,20 +37,20 @@ def query_to_mdf_records(query=None, dataset_id=None, acl=None):
 
     records = []
     for hit in pif_result.hits:
-        records.append(pif_to_mdf_record(hit.system, dataset_result.hits[0], acl))
+        records.append(pif_to_mdf_record(hit.system, dataset_result.hits[0], mdf_acl))
 
     return records
 
 
-def pif_to_mdf_record(pif_obj, dataset_hit, acl):
+def pif_to_mdf_record(pif_obj, dataset_hit, mdf_acl):
     """Convert a PIF into partial MDF record"""
     res = {}
-    res["mdf"] = _to_meta_data(pif_obj, dataset_hit, acl)
+    res["mdf"] = _to_meta_data(pif_obj, dataset_hit, mdf_acl)
     res[res["mdf"]["source_name"]] = _to_user_defined(pif_obj)
     return dumps(res)
 
 
-def _to_meta_data(pif_obj, dataset_hit, acl):
+def _to_meta_data(pif_obj, dataset_hit, mdf_acl):
     """Convert the meta-data from the PIF into MDF"""
     pif = pif_obj.as_dictionary()
     dataset = dataset_hit.as_dictionary()
@@ -64,7 +68,7 @@ def _to_meta_data(pif_obj, dataset_hit, acl):
         if not mdf["composition"]:
             mdf.pop("composition")
 
-        mdf["acl"] = acl
+        mdf["acl"] = mdf_acl
         mdf["source_name"] = _construct_new_key(dataset["name"])
 
         if pif.get("contacts"):
