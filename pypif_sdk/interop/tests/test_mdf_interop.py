@@ -1,6 +1,7 @@
 from pypif.obj.common import Property, Scalar, Person, Name, License, Reference, Value
 from pypif.obj.system import System, ChemicalSystem
 from pypif.obj.system.chemical.common import Composition
+from citrination_client import DatasetSearchHit
 from pypif_sdk.interop.mdf import _to_user_defined, _construct_new_key, _to_meta_data
 from pypif_sdk.interop.mdf import query_to_mdf_records
 
@@ -39,7 +40,8 @@ def test_query_to_mdf_records():
     assert all("mdf" in r for r in records), "Records are majorly malformed"
     for r in records:
         rd = json.loads(r)
-        user_block = rd["{source_name}"]
+        source_name = next(x for x in rd.keys() if x != "mdf")
+        user_block = rd[source_name]
         assert "Density_kg_m_3" in user_block, "Failed to convert property"
         assert "Heat_treatment" in user_block, "Failed to convert process step detail"
 
@@ -84,12 +86,18 @@ def test_construct_new_key():
 
 
 def test_to_meta_data():
-    meta_data1 = _to_meta_data(test_pif1, 0)
+    dataset_info = DatasetSearchHit(
+        name="A dataset",
+        id=0,
+        owner="Albert Einstein",
+        email="al@rel.gr"
+    )
+    meta_data1 = _to_meta_data(test_pif1, dataset_info)
     assert meta_data1 == {
         "title": "methane",
         "composition": "CH4",
         "acl": ["public"],
-        "source_name": "citrine_0",
+        "source_name": "A_dataset",
         "data_contact": [{
             "given_name": "Albert",
             "family_name": "Einstein",
@@ -99,7 +107,11 @@ def test_to_meta_data():
             "family_name": "Min",
             "email": "admin@citrine.io"
             }],
-        "data_contributor": [{}],
+        "data_contributor": [{
+            "given_name": "Albert", 
+            "family_name": "Einstein",
+            "email": "al@rel.gr"
+        }],
         "citation": ["doi"],
         "author": [{
             "given_name": "Captain",
@@ -112,12 +124,13 @@ def test_to_meta_data():
             "publication": ["doi"]
             }
         }
-    meta_data2 = _to_meta_data(test_pif2, 0)
+    dataset_info.owner = None
+    meta_data2 = _to_meta_data(test_pif2, dataset_info)
     assert meta_data2 == {
         "title": "Citrine PIF 0",
         "composition": "HSO",
         "acl": ["public"],
-        "source_name": "citrine_0",
+        "source_name": "A_dataset",
         "data_contributor": [{}],
         "links": {
             "landing_page": "https://citrination.com/datasets/0"

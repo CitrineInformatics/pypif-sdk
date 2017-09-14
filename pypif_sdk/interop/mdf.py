@@ -1,6 +1,6 @@
 from pypif_sdk.readview import ReadView
 from pypif.obj.common import Value, ProcessStep
-from citrination_client import PifQuery
+from citrination_client import PifQuery, DatasetQuery, SystemQuery, Filter
 from ..util.citrination import get_client
 from pypif.pif import dumps
 
@@ -21,25 +21,33 @@ def query_to_mdf_records(query=None, dataset_id=None):
     if not client:
         raise ValueError("Unable to create a citrination client; is 'CITRINATION_API_KEY' in the env?")
 
-    result = client.search(query)
+
+    pif_result = client.pif_search(query)
+
+    example_uid = pif_result.hits[0].system.uid
+    dataset_query = DatasetQuery(system=SystemQuery(uid=Filter(equal=example_uid)), size=1)
+ 
+    dataset_result = client.dataset_search(dataset_query)
+
     records = []
-    for hit in result.hits:
-        records.append(pif_to_mdf_record(hit.system, hit.dataset))
+    for hit in pif_result.hits:
+        records.append(pif_to_mdf_record(hit.system, dataset_result.hits[0]))
 
     return records
 
 
-def pif_to_mdf_record(pif_obj, dataset_id):
+def pif_to_mdf_record(pif_obj, dataset_hit):
     """Convert a PIF into partial MDF record"""
     res = {}
-    res["mdf"] = _to_meta_data(pif_obj, dataset_id)
+    res["mdf"] = _to_meta_data(pif_obj, dataset_hit)
     res[res["mdf"]["source_name"]] = _to_user_defined(pif_obj)
     return dumps(res)
 
 
-def _to_meta_data(pif_obj, dataset_id):
+def _to_meta_data(pif_obj, dataset_hit):
     """Convert the meta-data from the PIF into MDF"""
     pif = pif_obj.as_dictionary()
+    dataset = dataset_hit.as_dictionary()
     mdf = {}
     try:
         if pif.get("names"):
@@ -55,7 +63,7 @@ def _to_meta_data(pif_obj, dataset_id):
             mdf.pop("composition")
 
         mdf["acl"] = ["public"] #TODO: Real ACLs
-        mdf["source_name"] = _construct_new_key("citrine_" + str(dataset_id))
+        mdf["source_name"] = _construct_new_key(dataset["name"])
 
         if pif.get("contacts"):
             mdf["data_contact"] = []
@@ -72,10 +80,18 @@ def _to_meta_data(pif_obj, dataset_id):
             if not mdf["data_contact"]:
                 mdf.pop("data_contact")
         
-        mdf["data_contributor"] = [{}] #TODO: Real contrib
+        mdf["data_contributor"] = [{}] 
+        if "owner" in dataset:
+            name = dataset["owner"].split()
+            contributor = {
+                "given_name": name[0],
+                "family_name": name[1],
+                "email": dataset["email"]
+            }
+            mdf["data_contributor"] = [contributor]
 
         mdf["links"] = {
-            "landing_page": "https://citrination.com/datasets/{}".format(dataset_id),
+            "landing_page": "https://citrination.com/datasets/{}".format(dataset["id"]),
             "publication": []
             }
         if pif.get("references"):

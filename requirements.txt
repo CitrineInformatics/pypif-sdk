@@ -1,2 +1,4 @@
 pypif==1.3.0
-citrination_client==2.0.0
+#citrination_client==2.0.0
+https://github.com/CitrineInformatics/python-citrination-client/archive/release/2.1.0.zip
+
