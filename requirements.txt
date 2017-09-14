@@ -1,1 +1,2 @@
 pypif==1.3.0
+citrination_client==2.1.0
