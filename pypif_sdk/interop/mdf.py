@@ -7,7 +7,7 @@ from pypif.pif import dumps
 import re
 
 
-def query_to_mdf_records(query=None, dataset_id=None):
+def query_to_mdf_records(query=None, dataset_id=None, acls=None):
     """Evaluate a query and return a list of MDF records
 
     If a datasetID is specified by there is no query, a simple
@@ -20,6 +20,8 @@ def query_to_mdf_records(query=None, dataset_id=None):
     client = get_client()
     if not client:
         raise ValueError("Unable to create a citrination client; is 'CITRINATION_API_KEY' in the env?")
+    if not acls:
+        raise ValueError('Access controls (acls) must be specified.  Use ["public"] for public access')
 
 
     pif_result = client.pif_search(query)
@@ -31,20 +33,20 @@ def query_to_mdf_records(query=None, dataset_id=None):
 
     records = []
     for hit in pif_result.hits:
-        records.append(pif_to_mdf_record(hit.system, dataset_result.hits[0]))
+        records.append(pif_to_mdf_record(hit.system, dataset_result.hits[0], acls))
 
     return records
 
 
-def pif_to_mdf_record(pif_obj, dataset_hit):
+def pif_to_mdf_record(pif_obj, dataset_hit, acls):
     """Convert a PIF into partial MDF record"""
     res = {}
-    res["mdf"] = _to_meta_data(pif_obj, dataset_hit)
+    res["mdf"] = _to_meta_data(pif_obj, dataset_hit, acls)
     res[res["mdf"]["source_name"]] = _to_user_defined(pif_obj)
     return dumps(res)
 
 
-def _to_meta_data(pif_obj, dataset_hit):
+def _to_meta_data(pif_obj, dataset_hit, acls):
     """Convert the meta-data from the PIF into MDF"""
     pif = pif_obj.as_dictionary()
     dataset = dataset_hit.as_dictionary()
@@ -62,7 +64,7 @@ def _to_meta_data(pif_obj, dataset_hit):
         if not mdf["composition"]:
             mdf.pop("composition")
 
-        mdf["acl"] = ["public"] #TODO: Real ACLs
+        mdf["acl"] = acls
         mdf["source_name"] = _construct_new_key(dataset["name"])
 
         if pif.get("contacts"):

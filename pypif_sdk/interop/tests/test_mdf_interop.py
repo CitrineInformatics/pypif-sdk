@@ -33,7 +33,7 @@ test_pif2 = ChemicalSystem(
 @pytest.mark.skipif("CITRINATION_API_KEY" not in environ, reason="No API key available")
 def test_query_to_mdf_records():
     """Big integration test to make sure everything is working"""
-    records = query_to_mdf_records(dataset_id=153258)
+    records = query_to_mdf_records(dataset_id=153258, acls=["public"])
 
     assert len(records) == 9, "Some records were not converted"
 
@@ -92,7 +92,7 @@ def test_to_meta_data():
         owner="Albert Einstein",
         email="al@rel.gr"
     )
-    meta_data1 = _to_meta_data(test_pif1, dataset_info)
+    meta_data1 = _to_meta_data(test_pif1, dataset_info, acls=["public"])
     assert meta_data1 == {
         "title": "methane",
         "composition": "CH4",
@@ -125,7 +125,7 @@ def test_to_meta_data():
             }
         }
     dataset_info.owner = None
-    meta_data2 = _to_meta_data(test_pif2, dataset_info)
+    meta_data2 = _to_meta_data(test_pif2, dataset_info, acls=["public"])
     assert meta_data2 == {
         "title": "Citrine PIF 0",
         "composition": "HSO",
