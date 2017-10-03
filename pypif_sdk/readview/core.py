@@ -9,6 +9,7 @@ from pypif.obj.common.software import Software
 from pypif.obj.common.source import Source
 from pypif.obj.common.value import Value
 from pypif.obj.common.reference import Reference
+from pypif.obj.common import ProcessStep
 from pypif.obj import System as Subsystem
 from pypif.pif import dumps
 
@@ -79,6 +80,7 @@ class ReadView():
             (Software, "name"),
             (Source, "producer"),
             (DisplayItem, "title"),
+            (ProcessStep, "name"),
             (Reference, "doi"),
         ]
 
@@ -101,6 +103,8 @@ class ReadView():
                         for x in getattr(system, k):
                             # define a key
                             new_key = getattr(x, name)
+                            if not new_key:
+                                continue
                             new_val = ReadView(x)
                             parsed[new_key] = new_val
                             new_keypair(new_key, new_val, self.ambig, self.unambig)
@@ -117,6 +121,8 @@ class ReadView():
                 for t, name in self.inlines:
                     if isinstance(getattr(system, k), t):
                         new_key = getattr(getattr(system, k), name)
+                        if not new_key:
+                            continue
                         new_val = ReadView(getattr(system, k))
                         new_keypair(new_key, new_val, self.ambig, self.unambig)
                         add_child_ambig(new_val.ambig, new_val.unambig, self.ambig, self.unambig)
