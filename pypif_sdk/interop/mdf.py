@@ -1,6 +1,7 @@
 from pypif_sdk.readview import ReadView
 from pypif.obj.common import Value, ProcessStep
-from citrination_client import PifQuery, DatasetQuery, SystemQuery, Filter
+from citrination_client import DatasetQuery, Filter, DatasetReturningQuery, DataQuery, PifSystemQuery, \
+    PifSystemReturningQuery
 from ..util.citrination import get_client
 from pypif.pif import dumps
 
@@ -18,21 +19,32 @@ def query_to_mdf_records(query=None, dataset_id=None, mdf_acl=None):
     if query and dataset_id:
         raise ValueError("Both query and dataset_id were specified; pick one or the other.")
     if not query:
-        query = PifQuery(include_datasets=[dataset_id])
+        query = PifSystemReturningQuery(
+            query=DataQuery(
+                dataset=DatasetQuery(
+                    id=Filter(equal=dataset_id)
+                )
+            )
+        )
 
     client = get_client()
 
     if not mdf_acl:
         raise ValueError('Access controls (mdf_acl) must be specified.  Use ["public"] for public access')
 
-
     pif_result = client.pif_search(query)
     if len(pif_result.hits) == 0:
         return []
 
     example_uid = pif_result.hits[0].system.uid
-    dataset_query = DatasetQuery(system=SystemQuery(uid=Filter(equal=example_uid)), size=1)
- 
+    dataset_query = DatasetReturningQuery(
+        query=DataQuery(
+            system=PifSystemQuery(
+                uid=Filter(equal=example_uid)
+            )
+        )
+    )
+
     dataset_result = client.dataset_search(dataset_query)
 
     records = []
