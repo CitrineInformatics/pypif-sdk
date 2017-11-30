@@ -1,4 +1,5 @@
 from pypif.obj import System, Reference, Person, Name
+from ..func.update_funcs import merge
 
 
 def parse_name_string(full_name):
@@ -44,3 +45,8 @@ def datacite_to_pif(dc):
     system = System()
     system.references = [datacite_to_pif_reference(dc)]
     return system
+
+
+def add_datacite(pif, dc):
+    meta_pif = datacite_to_pif(dc)
+    return merge(pif, meta_pif)

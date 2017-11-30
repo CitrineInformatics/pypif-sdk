@@ -1,4 +1,6 @@
-from pypif_sdk.interop.datacite import creator_to_person, datacite_to_pif_reference
+from pypif_sdk.interop.datacite import creator_to_person, datacite_to_pif_reference, add_datacite
+from pypif.obj.system import System
+from pypif.obj.common import Property, Scalar
 
 
 def test_simple_creator_name():
@@ -70,3 +72,17 @@ def test_generate_reference():
     assert ref.publisher == "Ether"
     assert ref.year == "2014"
     assert ref.authors[0].given == "Kyle"
+
+
+def test_add_datacite():
+    data_pif = System(properties=[Property(name="Foo", scalars=[Scalar(value="bar")])])
+    dc = {
+        "identifier": {"identifier": "000.000", "identifierType": "DOI"},
+        "title": "The joy of the PIF",
+        "publisher": "Ether",
+        "publicationYear": "2014",
+        "creators": [{"creatorName": "Kyle Michel", "affiliations": ["Berklee", "NW"]}]
+    }
+    res = add_datacite(data_pif, dc)
+    assert res.properties[0].scalars[0].value == "bar"
+    assert res.references[0].doi == "000.000" 
