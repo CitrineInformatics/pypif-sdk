@@ -1,5 +1,5 @@
 from toolz import unique, concat
-import pypif
+from pypif.pif import loads, dumps
 import random
 
 
@@ -24,7 +24,7 @@ def update(first, second, extend=False):
     old_d = first.as_dictionary()
     new_d = second.as_dictionary()
     _deep_update(old_d, new_d, extend)
-    return pypif.pif.loads(pypif.pif.dumps(old_d))
+    return loads(dumps(old_d))
 
 
 def merge(first, second):
