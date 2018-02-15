@@ -8,4 +8,3 @@ def test_get_property_by_name():
     found_property = get_property_by_name(basic_pif, 'Property 2')
 
     assert found_property.scalars[0].value == '20'
-
