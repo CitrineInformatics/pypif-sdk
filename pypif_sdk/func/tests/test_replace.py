@@ -26,7 +26,7 @@ def test_simple_replace():
     prop = get_property_by_name(copy(test_pif), "image")
     assert prop.files[0].relative_path == "/tmp/file.png", "Didn't shorten file name"
     new_pif = replace_by_key(test_pif, "relative_path", {"/tmp/file.png": "file.png"})
-    prop = get_propety_by_name(new_pif, "image")
+    prop = get_property_by_name(new_pif, "image")
     assert prop.files[0].relative_path == "file.png", "Didn't shorten file name"
     assert prop.files[0].relative_path == "file.png", "Didn't shorten file name"
 
