@@ -1,5 +1,5 @@
 from pypif_sdk.func import replace_by_key, copy
-from pypif_sdk.accessor import get_propety_by_name
+from pypif_sdk.accessor import get_property_by_name
 from pypif.obj import System, Property, Scalar, Value, FileReference
 
 
@@ -23,10 +23,10 @@ test_pif = System(
 
 def test_simple_replace():
     """Test replace a single field with default arguments"""
-    prop = get_propety_by_name(copy(test_pif), "image")
+    prop = get_property_by_name(copy(test_pif), "image")
     assert prop.files[0].relative_path == "/tmp/file.png", "Didn't shorten file name"
     new_pif = replace_by_key(test_pif, "relative_path", {"/tmp/file.png": "file.png"})
-    prop = get_propety_by_name(new_pif, "image")
+    prop = get_property_by_name(new_pif, "image")
     assert prop.files[0].relative_path == "file.png", "Didn't shorten file name"
     assert prop.files[0].relative_path == "file.png", "Didn't shorten file name"
 
@@ -41,6 +41,6 @@ def test_multi_replace():
 
 def test_new_key():
     new_pif = replace_by_key(test_pif, "relative_path", {"/tmp/file.png": "www.file.png"}, new_key="url", remove=True)
-    prop = get_propety_by_name(new_pif, "image")
+    prop = get_property_by_name(new_pif, "image")
     assert prop.files[0].url == "www.file.png", "Didn't set URL"
     assert prop.files[0].relative_path is None, "Didn't remove relative_path"
