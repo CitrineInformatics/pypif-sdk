@@ -48,7 +48,8 @@ def add_child_ambig(child_ambig, child_unambig, ambig, unambig):
     """
     for k in child_ambig:
         ambig.add(k)
-        del unambig[k]
+        if k in unambig:
+            del unambig[k]
 
     for k, v in child_unambig.items():
         new_keypair(k, v, ambig, unambig)
@@ -94,7 +95,7 @@ class ReadView():
             added = False
 
             # check if list
-            if isinstance(getattr(system, k), list):
+            if isinstance(getattr(system, k), list) and len(getattr(system, k)) > 0:
                 for t, name in self.inlines:
                     # check if we know how to decode the type
                     if isinstance(getattr(system, k)[0], t):

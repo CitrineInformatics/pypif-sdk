@@ -90,7 +90,7 @@ def test_method_software():
 
 
 def test_key_error_case():
-    with open("csv_pif.pif") as f:
+    with open("./pypif_sdk/readview/tests/csv_pif.pif") as f:
         test_case = load(f)
     rv = ReadView(test_case)
     assert len(rv.keys()) > 0
