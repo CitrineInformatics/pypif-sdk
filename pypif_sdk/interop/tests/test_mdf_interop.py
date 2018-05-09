@@ -20,7 +20,7 @@ test_pif1 = ChemicalSystem(
     tags = ["too long", "didn't read"],
     properties = [
         Property(name="foo", scalars=[Scalar(value="bar")]),
-        Property(name="spam", scalrs=[Scalar(value="eggs")])
+        Property(name="spam", scalars=[Scalar(value="eggs")])
     ]
 )
 test_pif2 = ChemicalSystem(
@@ -55,9 +55,9 @@ def test_property_value():
  
 def test_property_list():
     """Test that a property with a list of scalars gets pulled out"""
-    sys = System(properties=[Property(name="foo", scalars=[Scalar(value="spam"), Scalar(value="eggs")])])
+    sys = System(properties=[Property(name="foo", scalars=[Scalar(value="spam"), Scalar(value="eggs"), '1'])])
     user_data = _to_user_defined(sys)
-    assert user_data["foo"] == ["spam", "eggs"] 
+    assert user_data["foo"] == ["spam", "eggs", "1"]
 
 
 def test_property_vector():
