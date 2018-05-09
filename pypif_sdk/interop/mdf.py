@@ -1,5 +1,5 @@
 from pypif_sdk.readview import ReadView
-from pypif.obj.common import Value, ProcessStep
+from pypif.obj.common import Value, ProcessStep, Scalar
 from citrination_client import DatasetQuery, Filter, DatasetReturningQuery, DataQuery, PifSystemQuery, \
     PifSystemReturningQuery
 from ..util.citrination import get_client
@@ -228,13 +228,17 @@ def _extract_key_value(obj):
     # Parse a Value object, which includes Properties
     if isinstance(obj, Value):
         key = _construct_new_key(obj.name, obj.units)
-        value = None
-        if obj.scalars and len(obj.scalars) == 1:
-            value = obj.scalars[0].value
-        elif obj.scalars:
-            value =  [x.value for x in obj.scalars]
+        value = []
+        if obj.scalars:
+            value = [(val.value if isinstance(val, Scalar) else val)
+                     for val in obj.scalars]
         elif obj.vectors and len(obj.vectors) == 1:
-            value = [x.value for x in obj.vectors[0]]
+            value = [(val.value if isinstance(val, Scalar) else val)
+                     for val in obj.vectors[0]]
+        if len(value) == 1:
+            value = value[0]
+        elif len(value) == 0:
+            value = None
 
     # If there is a process step, pul out its name as the value
     # TODO: resolve duplicates
