@@ -1,5 +1,6 @@
 from pypif.obj import System, Property, Scalar, Value, Method, Software
 from pypif_sdk.readview import ReadView
+from pypif.pif import load
 
 
 def test_read_view():
@@ -86,3 +87,10 @@ def test_method_software():
     assert r["foo"].scalars[0].value == "bar", "Didn't elevate property key"
     assert "spam" in r.keys(), "Expected spam in keys"
     assert "magic" in r.keys(), "Expected magic in keys"
+
+
+def test_key_error_case():
+    with open("./pypif_sdk/readview/tests/csv_pif.pif") as f:
+        test_case = load(f)
+    rv = ReadView(test_case)
+    assert len(rv.keys()) > 0
