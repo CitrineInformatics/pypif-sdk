@@ -52,7 +52,7 @@ def datacite_to_pif_reference(dc):
     ref.publisher = dc.get('publisher')
     ref.year = dc.get('publicationYear')
 
-    ref.authors = [creator_to_person(x).name for x in dc.get('creators', [])]
+    ref.authors = [creator_to_person(x).name for x in dc.get('creators', [])] or None
 
     return ref
 
