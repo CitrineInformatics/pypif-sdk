@@ -46,13 +46,13 @@ def datacite_to_pif_reference(dc):
     :return: Reference corresponding to that datacite entry
     """
     ref = Reference()
-    if dc.get('identifier').get('identifierType') == "DOI":
-        ref.doi = dc.get('identifier').get('identifier')
+    if dc.get('identifier', {}).get('identifierType') == "DOI":
+        ref.doi = dc.get('identifier', {}).get('identifier')
     ref.title = dc.get('title')
     ref.publisher = dc.get('publisher')
     ref.year = dc.get('publicationYear')
 
-    ref.authors = [creator_to_person(x).name for x in dc.get('creators')]
+    ref.authors = [creator_to_person(x).name for x in dc.get('creators', [])]
 
     return ref
 

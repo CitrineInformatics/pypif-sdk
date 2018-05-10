@@ -85,4 +85,15 @@ def test_add_datacite():
     }
     res = add_datacite(data_pif, dc)
     assert res.properties[0].scalars[0].value == "bar"
-    assert res.references[0].doi == "000.000" 
+    assert res.references[0].doi == "000.000"
+
+    data_pif2 = System(properties=[Property(name="Foo", scalars=[Scalar(value="bar")])])
+    dc2 = {
+        "title": "The joy of the PIF",
+        "publisher": "Ether",
+        "publicationYear": "2014",
+        "creators": [{"creatorName": "Kyle Michel", "affiliations": ["Berklee", "NW"]}]
+    }
+    res2 = add_datacite(data_pif2, dc2)
+    assert res2.properties[0].scalars[0].value == "bar"
+    assert res2.references[0].doi is None
