@@ -24,7 +24,8 @@ def query_to_mdf_records(query=None, dataset_id=None, mdf_acl=None):
                 dataset=DatasetQuery(
                     id=Filter(equal=dataset_id)
                 )
-            )
+            ),
+            size = 10000 # Don't pull down all the results by default
         )
 
     client = get_client()
@@ -42,7 +43,8 @@ def query_to_mdf_records(query=None, dataset_id=None, mdf_acl=None):
             system=PifSystemQuery(
                 uid=Filter(equal=example_uid)
             )
-        )
+        ),
+        size = 1 # we only expect one dataset to hit
     )
 
     dataset_result = client.dataset_search(dataset_query)
