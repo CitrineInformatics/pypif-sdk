@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pypif-sdk',
-      version='2.2.0',
+      version='2.2.1',
       url='http://github.com/CitrineInformatics/pypif-sdk',
       description='High level support for working with Physical Information Files (PIF)',
       author='Max Hutchinson',
@@ -9,6 +9,6 @@ setup(name='pypif-sdk',
       packages=find_packages(),
       install_requires=[
           'pypif>=2.0.0,<4',
-          'citrination_client>=3,<4',
+          'citrination_client>=3,<5',
           'toolz'
       ])
