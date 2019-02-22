@@ -7,8 +7,9 @@ setup(name='pypif-sdk',
       author='Max Hutchinson',
       author_email='maxhutch@citrine.io',
       packages=find_packages(),
+      package_data={'pypif_sdk' : ['func/elements.json']},
       install_requires=[
           'pypif>=2.0.0,<4',
           'citrination_client>=3,<5',
-          'toolz'
+          'toolz',
       ])
