@@ -10,6 +10,6 @@ setup(name='pypif-sdk',
       package_data={'pypif_sdk' : ['func/elements.json']},
       install_requires=[
           'pypif>=2.0.0,<4',
-          'citrination_client>=3,<5',
+          'citrination_client>=3',
           'toolz',
       ])
